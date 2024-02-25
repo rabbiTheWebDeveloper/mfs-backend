@@ -1,10 +1,10 @@
 import ApiError from "../../errors/ApiError";
-import { IUser } from "./user.interface";
-import { UsersModel } from "./user.model";
+import { IAgent } from "./agent.interface";
+import { AgentsModel } from "./agent.model";
 
-export const registrationFromDB = async (data: IUser): Promise<IUser> => {
+export const registrationFromDB = async (data: IAgent): Promise<IAgent> => {
   try {
-    const user = new UsersModel(data);
+    const user = new AgentsModel(data);
     await user.save();
 
     if (!user) {
@@ -22,20 +22,20 @@ export const registrationFromDB = async (data: IUser): Promise<IUser> => {
 }
 };
 
-export const loginFromDB = async (reqBody: IUser): Promise<void> => {
-  const user: any = await UsersModel.aggregate([
+export const loginFromDB = async (reqBody: IAgent): Promise<void> => {
+  const user: any = await AgentsModel.aggregate([
     { $match: reqBody },
-    { $project: { _id: 1, email: 1, name: 1, mobile: 1, photo: 1 } },
+    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1 } },
   ]);
   return user;
 };
 
 export const userUpdateInDB = async (
   userId: string,
-  updateData: Partial<IUser>
+  updateData: Partial<IAgent>
 ): Promise<any | null> => {
   try {
-    const result: any = await UsersModel.updateOne(
+    const result: any = await AgentsModel.updateOne(
       { _id: userId },
       { $set: updateData }
     );

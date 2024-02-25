@@ -23,20 +23,20 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UsersModel = void 0;
+exports.AgentsModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const userSchema = new mongoose_1.Schema({
+const agentSchema = new mongoose_1.Schema({
     name: String,
     pin: String,
     mobileNumber: { type: String, unique: true },
     email: { type: String, unique: true },
-    accountType: { type: String, default: 'User' },
+    accountType: { type: String, default: 'Agent' },
     nid: String,
-    balance: { type: Number, default: 40 },
-    lastLoginDevice: String,
-    transactions: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Transaction' }]
+    balance: { type: Number, default: 100000 },
+    transactions: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Transaction' }],
+    approvalStatus: { type: String, default: 'Pending' } // Approved, Rejected
 }, {
     timestamps: true,
     versionKey: false
 });
-exports.UsersModel = mongoose_1.default.model('users', userSchema);
+exports.AgentsModel = mongoose_1.default.model('agents', agentSchema);

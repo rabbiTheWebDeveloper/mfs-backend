@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
-export interface IUser extends Document {
+
+export interface IAgent extends Document {
   name: string;
   pin: string;
   mobileNumber: string;
@@ -7,6 +8,6 @@ export interface IUser extends Document {
   accountType: string;
   nid: string;
   balance: number;
-  lastLoginDevice?: string;
-  transactions: Types.ObjectId[];
+  transactions:Types.ObjectId[];
+  approvalStatus: string;
 }
