@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { login, registration, userUpdate } from "./user.controller";
+import { login, registration, userUpdate } from "./admin.controller";
 import validateRequest from "../../middleware/validateRequest";
-import { UserValidation } from "./user.validation";
+import { UserValidation } from "./admin.validation";
 
 const router: Router = Router();
 
@@ -13,4 +13,4 @@ router.post(
 router.post("/signin", login);
 // router.post("/user-update/:id",userUpdate);
 
-export const userRoutes = router;
+export const adminRoutes = router;

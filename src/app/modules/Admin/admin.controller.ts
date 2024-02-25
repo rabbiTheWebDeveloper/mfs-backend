@@ -4,7 +4,7 @@ import {
   loginFromDB,
   registrationFromDB,
   userUpdateInDB,
-} from "./user.service";
+} from "./admin.service";
 import catchAsync from "../../shared/catchAsync";
 import jwt from "jsonwebtoken";
 export const registration: RequestHandler = catchAsync(

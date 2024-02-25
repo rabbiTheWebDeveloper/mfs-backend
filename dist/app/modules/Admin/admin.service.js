@@ -14,10 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userUpdateInDB = exports.loginFromDB = exports.registrationFromDB = void 0;
 const ApiError_1 = __importDefault(require("../../errors/ApiError"));
-const user_model_1 = require("./user.model");
+const admin_model_1 = require("./admin.model");
 const registrationFromDB = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = new user_model_1.UsersModel(data);
+        const user = new admin_model_1.AdminModel(data);
         yield user.save();
         if (!user) {
             throw new ApiError_1.default(400, 'Failed to create');
@@ -35,7 +35,7 @@ const registrationFromDB = (data) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.registrationFromDB = registrationFromDB;
 const loginFromDB = (reqBody) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_model_1.UsersModel.aggregate([
+    const user = yield admin_model_1.AdminModel.aggregate([
         { $match: reqBody },
         { $project: { _id: 1, email: 1, name: 1, mobile: 1, photo: 1 } },
     ]);
@@ -44,7 +44,7 @@ const loginFromDB = (reqBody) => __awaiter(void 0, void 0, void 0, function* () 
 exports.loginFromDB = loginFromDB;
 const userUpdateInDB = (userId, updateData) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield user_model_1.UsersModel.updateOne({ _id: userId }, { $set: updateData });
+        const result = yield admin_model_1.AdminModel.updateOne({ _id: userId }, { $set: updateData });
         return result;
     }
     catch (error) {

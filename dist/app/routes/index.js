@@ -7,11 +7,16 @@ const express_1 = __importDefault(require("express"));
 const user_router_1 = require("../modules/User/user.router");
 const transaction_route_1 = require("../modules/Transaction/transaction.route");
 const agent_router_1 = require("../modules/Agent/agent.router");
+const admin_router_1 = require("../modules/Admin/admin.router");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
         path: "/users",
         route: user_router_1.userRoutes,
+    },
+    {
+        path: "/admin",
+        route: admin_router_1.adminRoutes,
     },
     {
         path: "/agents",

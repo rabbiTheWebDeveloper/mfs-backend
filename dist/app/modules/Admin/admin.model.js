@@ -23,20 +23,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UsersModel = void 0;
+exports.AdminModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const userSchema = new mongoose_1.Schema({
+const adminSchema = new mongoose_1.Schema({
     name: String,
     pin: String,
     mobileNumber: { type: String, unique: true },
     email: { type: String, unique: true },
-    accountType: { type: String, default: 'User' },
+    accountType: { type: String, default: 'Admin' },
     nid: String,
-    balance: { type: Number, default: 40 },
-    lastLoginDevice: String,
-    transactions: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Transaction' }]
+    lastLoginDevice: String
 }, {
     timestamps: true,
     versionKey: false
 });
-exports.UsersModel = mongoose_1.default.model('users', userSchema);
+exports.AdminModel = mongoose_1.default.model('admin', adminSchema);

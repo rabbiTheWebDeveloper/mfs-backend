@@ -1,10 +1,10 @@
 import ApiError from "../../errors/ApiError";
-import { IUser } from "./user.interface";
-import { UsersModel } from "./user.model";
+import { IAdmin } from "./admin.interface";
+import { AdminModel } from "./admin.model";
 
-export const registrationFromDB = async (data: IUser): Promise<IUser> => {
+export const registrationFromDB = async (data: IAdmin): Promise<IAdmin> => {
   try {
-    const user = new UsersModel(data);
+    const user = new AdminModel(data);
     await user.save();
 
     if (!user) {
@@ -22,8 +22,8 @@ export const registrationFromDB = async (data: IUser): Promise<IUser> => {
 }
 };
 
-export const loginFromDB = async (reqBody: IUser): Promise<void> => {
-  const user: any = await UsersModel.aggregate([
+export const loginFromDB = async (reqBody: IAdmin): Promise<void> => {
+  const user: any = await AdminModel.aggregate([
     { $match: reqBody },
     { $project: { _id: 1, email: 1, name: 1, mobile: 1, photo: 1 } },
   ]);
@@ -32,10 +32,10 @@ export const loginFromDB = async (reqBody: IUser): Promise<void> => {
 
 export const userUpdateInDB = async (
   userId: string,
-  updateData: Partial<IUser>
+  updateData: Partial<IAdmin>
 ): Promise<any | null> => {
   try {
-    const result: any = await UsersModel.updateOne(
+    const result: any = await AdminModel.updateOne(
       { _id: userId },
       { $set: updateData }
     );

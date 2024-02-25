@@ -15,7 +15,7 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   sendReponse<ITransaction>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Book created successfully!",
+    message: "Sent Money successfully!",
     data: result,
   });
 });

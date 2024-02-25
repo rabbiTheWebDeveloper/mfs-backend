@@ -40,15 +40,20 @@ const sentMoneyInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0
     yield sender.save();
     yield receiver.save();
     const transaction = new transaction_model_1.Transaction({
-        sender: senderId,
-        receiver: receiverId,
+        sender: sender._id,
+        receiver: receiver._id,
         amount,
         transactionType: 'sendMoney',
         transactionFee,
         transactionID: (0, transactionID_1.generateTransactionID)(),
         timestamp: new Date()
     });
+    console.log(transaction);
     yield transaction.save();
+    sender.transactions.push(transaction._id);
+    receiver.transactions.push(transaction._id);
+    yield sender.save();
+    yield receiver.save();
     return transaction;
 });
 exports.Transactionservice = {

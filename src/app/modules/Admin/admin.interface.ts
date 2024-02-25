@@ -1,12 +1,17 @@
 import { Types } from "mongoose";
-export interface IUser extends Document {
+export interface IAdmin extends Document {
   name: string;
   pin: string;
   mobileNumber: string;
   email: string;
   accountType: string;
   nid: string;
-  balance: number;
   lastLoginDevice?: string;
-  transactions: Types.ObjectId[];
+}
+
+
+export interface IApprovalRequest extends Document {
+  agent: Types.ObjectId;
+  status: string;
+  timestamp: Date;
 }

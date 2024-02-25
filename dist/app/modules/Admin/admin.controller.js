@@ -14,17 +14,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userUpdate = exports.login = exports.registration = void 0;
 const responseHandler_1 = require("../../utlis/responseHandler");
-const user_service_1 = require("./user.service");
+const admin_service_1 = require("./admin.service");
 const catchAsync_1 = __importDefault(require("../../shared/catchAsync"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 exports.registration = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const reqBody = req.body;
-    const product = yield (0, user_service_1.registrationFromDB)(reqBody);
+    const product = yield (0, admin_service_1.registrationFromDB)(reqBody);
     (0, responseHandler_1.sendApiResponse)(res, 200, true, product);
 }));
 exports.login = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const reqBody = req.body;
-    const data = yield (0, user_service_1.loginFromDB)(reqBody);
+    const data = yield (0, admin_service_1.loginFromDB)(reqBody);
     if ((data === null || data === void 0 ? void 0 : data.length) > 0) {
         let Payload = {
             exp: Math.floor(Date.now() / 1000) + 50 * 24 * 60 * 60,
@@ -41,7 +41,7 @@ exports.login = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, 
 const userUpdate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const reqBody = req.body;
     const id = req.params.id;
-    const product = yield (0, user_service_1.userUpdateInDB)(id, reqBody);
+    const product = yield (0, admin_service_1.userUpdateInDB)(id, reqBody);
     (0, responseHandler_1.sendApiResponse)(res, 200, true, product);
 });
 exports.userUpdate = userUpdate;
