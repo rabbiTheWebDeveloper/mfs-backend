@@ -1,16 +1,18 @@
 import { Router } from "express";
-import { login, registration, userUpdate } from "./admin.controller";
+import { adminController, } from "./admin.controller";
 import validateRequest from "../../middleware/validateRequest";
 import { UserValidation } from "./admin.validation";
+import { auth } from "../../middleware/AuthVerifyMiddleware";
 
 const router: Router = Router();
 
 router.post(
   "/signup",
   // validateRequest(UserValidation.createUserZodSchema),
-  registration
+  adminController.registration
 );
-router.post("/signin", login);
-// router.post("/user-update/:id",userUpdate);
+router.post("/signin", adminController.login);
+router.post("/user-update/:id",auth, adminController.userUpdateOnDB);
+router.post("/agent-update/:id",auth, adminController.agentApprovedUpdateOnDB);
 
 export const adminRoutes = router;

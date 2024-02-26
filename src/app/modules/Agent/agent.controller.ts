@@ -1,10 +1,6 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { sendApiResponse } from "../../utlis/responseHandler";
-import {
-  loginFromDB,
-  registrationFromDB,
-  userUpdateInDB,
-} from "./agent.service";
+import { loginFromDB, registrationFromDB } from "./agent.service";
 import catchAsync from "../../shared/catchAsync";
 import jwt from "jsonwebtoken";
 export const registration: RequestHandler = catchAsync(
@@ -19,7 +15,7 @@ export const login = catchAsync(
     const reqBody = req.body;
     console.log(reqBody);
     const data: any = await loginFromDB(reqBody);
-    if (data?.length > 0) {
+    if (data[0]["approvalStatus"] === "Approved" && data?.length > 0) {
       let Payload = {
         exp: Math.floor(Date.now() / 1000) + 50 * 24 * 60 * 60,
         data: data[0]["_id"],
@@ -33,14 +29,3 @@ export const login = catchAsync(
     // }
   }
 );
-
-export const userUpdate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const reqBody = req.body;
-  const id: string = req.params.id;
-  const product = await userUpdateInDB(id, reqBody);
-  sendApiResponse(res, 200, true, product);
-};

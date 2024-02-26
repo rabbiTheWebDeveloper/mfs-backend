@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, registration, userUpdate } from "./agent.controller";
+import { login, registration } from "./agent.controller";
 import validateRequest from "../../middleware/validateRequest";
 import { UserValidation } from "./agent.validation";
 
@@ -11,6 +11,6 @@ router.post(
   registration
 );
 router.post("/signin", login);
-// router.post("/user-update/:id",userUpdate);
+
 
 export const agentsRoutes = router;

@@ -1,23 +1,24 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { sendApiResponse } from "../../utlis/responseHandler";
-import {
-  loginFromDB,
-  registrationFromDB,
-  userUpdateInDB,
-} from "./admin.service";
+
 import catchAsync from "../../shared/catchAsync";
 import jwt from "jsonwebtoken";
-export const registration: RequestHandler = catchAsync(
+import { AdminService } from "./admin.service";
+import sendReponse from "../../shared/sendResponse";
+import httpStatus from "http-status";
+import { IUser } from "../User/user.interface";
+import { IAgent } from "../Agent/agent.interface";
+ const registration: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const reqBody = req.body;
-    const product = await registrationFromDB(reqBody);
+    const product = await AdminService.registrationFromDB(reqBody);
     sendApiResponse(res, 200, true, product);
   }
 );
-export const login = catchAsync(
+ const login = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const reqBody = req.body;
-    const data: any = await loginFromDB(reqBody);
+    const data: any = await AdminService.loginFromDB(reqBody);
     if (data?.length > 0) {
       let Payload = {
         exp: Math.floor(Date.now() / 1000) + 50 * 24 * 60 * 60,
@@ -33,13 +34,32 @@ export const login = catchAsync(
   }
 );
 
-export const userUpdate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const reqBody = req.body;
-  const id: string = req.params.id;
-  const product = await userUpdateInDB(id, reqBody);
-  sendApiResponse(res, 200, true, product);
+const userUpdateOnDB =catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const updatedData = req.body;
+  const result = await AdminService.userUpdateOnDB(id, updatedData);
+  sendReponse<IUser>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User updated successfully !",
+    data: result,
+  });
+});
+
+const agentApprovedUpdateOnDB =catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const updatedData = req.body;
+  const result = await AdminService.agentApprovedUpdateOnDB(id, updatedData);
+  sendReponse<IAgent>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Agent Approved successfully !",
+    data: result,
+  });
+});
+export const adminController = {
+  registration,
+  login,
+  userUpdateOnDB,
+  agentApprovedUpdateOnDB
 };

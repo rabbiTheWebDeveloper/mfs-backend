@@ -8,5 +8,4 @@ router.post("/signup",
 // validateRequest(UserValidation.createUserZodSchema),
 agent_controller_1.registration);
 router.post("/signin", agent_controller_1.login);
-// router.post("/user-update/:id",userUpdate);
 exports.agentsRoutes = router;

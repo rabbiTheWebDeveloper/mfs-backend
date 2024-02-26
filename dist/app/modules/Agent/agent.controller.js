@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userUpdate = exports.login = exports.registration = void 0;
+exports.login = exports.registration = void 0;
 const responseHandler_1 = require("../../utlis/responseHandler");
 const agent_service_1 = require("./agent.service");
 const catchAsync_1 = __importDefault(require("../../shared/catchAsync"));
@@ -26,7 +26,7 @@ exports.login = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, 
     const reqBody = req.body;
     console.log(reqBody);
     const data = yield (0, agent_service_1.loginFromDB)(reqBody);
-    if ((data === null || data === void 0 ? void 0 : data.length) > 0) {
+    if (data[0]["approvalStatus"] === "Approved" && (data === null || data === void 0 ? void 0 : data.length) > 0) {
         let Payload = {
             exp: Math.floor(Date.now() / 1000) + 50 * 24 * 60 * 60,
             data: data[0]["_id"],
@@ -39,10 +39,3 @@ exports.login = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, 
     }
     // }
 }));
-const userUpdate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const reqBody = req.body;
-    const id = req.params.id;
-    const product = yield (0, agent_service_1.userUpdateInDB)(id, reqBody);
-    (0, responseHandler_1.sendApiResponse)(res, 200, true, product);
-});
-exports.userUpdate = userUpdate;

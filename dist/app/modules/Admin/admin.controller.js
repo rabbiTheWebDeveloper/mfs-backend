@@ -12,19 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userUpdate = exports.login = exports.registration = void 0;
+exports.adminController = void 0;
 const responseHandler_1 = require("../../utlis/responseHandler");
-const admin_service_1 = require("./admin.service");
 const catchAsync_1 = __importDefault(require("../../shared/catchAsync"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-exports.registration = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const admin_service_1 = require("./admin.service");
+const sendResponse_1 = __importDefault(require("../../shared/sendResponse"));
+const http_status_1 = __importDefault(require("http-status"));
+const registration = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const reqBody = req.body;
-    const product = yield (0, admin_service_1.registrationFromDB)(reqBody);
+    const product = yield admin_service_1.AdminService.registrationFromDB(reqBody);
     (0, responseHandler_1.sendApiResponse)(res, 200, true, product);
 }));
-exports.login = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const login = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const reqBody = req.body;
-    const data = yield (0, admin_service_1.loginFromDB)(reqBody);
+    const data = yield admin_service_1.AdminService.loginFromDB(reqBody);
     if ((data === null || data === void 0 ? void 0 : data.length) > 0) {
         let Payload = {
             exp: Math.floor(Date.now() / 1000) + 50 * 24 * 60 * 60,
@@ -38,10 +40,31 @@ exports.login = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, 
     }
     // }
 }));
-const userUpdate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const reqBody = req.body;
+const userUpdateOnDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const product = yield (0, admin_service_1.userUpdateInDB)(id, reqBody);
-    (0, responseHandler_1.sendApiResponse)(res, 200, true, product);
-});
-exports.userUpdate = userUpdate;
+    const updatedData = req.body;
+    const result = yield admin_service_1.AdminService.userUpdateOnDB(id, updatedData);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "User updated successfully !",
+        data: result,
+    });
+}));
+const agentApprovedUpdateOnDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const updatedData = req.body;
+    const result = yield admin_service_1.AdminService.agentApprovedUpdateOnDB(id, updatedData);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Agent Approved successfully !",
+        data: result,
+    });
+}));
+exports.adminController = {
+    registration,
+    login,
+    userUpdateOnDB,
+    agentApprovedUpdateOnDB
+};

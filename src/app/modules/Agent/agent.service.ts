@@ -1,49 +1,161 @@
+import httpStatus from "http-status";
 import ApiError from "../../errors/ApiError";
+import { AdminModel } from "../Admin/admin.model";
 import { IAgent } from "./agent.interface";
 import { AgentsModel } from "./agent.model";
+import { Transaction } from "../Transaction/transaction.model";
+import { generateTransactionID } from "../../utlis/transactionID";
+import { ITransaction } from "../Transaction/transaction.interface";
+import { UsersModel } from "../User/user.model";
 
 export const registrationFromDB = async (data: IAgent): Promise<IAgent> => {
   try {
+    const admin = await AdminModel.findOne();
+    if (!admin || admin.balance < 100000) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Please contact the administrator");
+    }
     const user = new AgentsModel(data);
     await user.save();
-
-    if (!user) {
-      throw new ApiError(400, 'Failed to create');
-    }
+    admin.balance -= user.balance;
+    await Promise.all([admin.save(), new Transaction({
+      sender: admin._id,
+      receiver: user._id,
+      amount: user.balance,
+      transactionType: "gift",
+      transactionFee: 0,
+      transactionID: generateTransactionID(),
+      timestamp: new Date(),
+    }).save()]);
     return user;
-} catch (error:any) {
-    if (error.code === 11000 && error.keyPattern.email === 1) {
-       
-        throw new ApiError( 400,'Email already exists');
+  } catch (error: any) {
+    if (error.code === 11000 && error.keyPattern?.email === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Email already exists");
     } else {
-     
-        throw error;
+      throw error;
     }
-}
+  }
 };
+const sentMoneyInsertIntoDB = async (
+  senderId: string,
+  receiverId: string,
+  amount: number
+): Promise<ITransaction> => {
+  const sender = await AdminModel.findOne({ mobileNumber: senderId });
+  const receiver = await UsersModel.findOne({ mobileNumber: receiverId });
+
+  if (!sender || !receiver) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Sender or receiver not found");
+  }
+  if (sender.balance < amount) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient balance");
+  }
+  const transactionFee = amount > 100 ? 5 : 0;
+  sender.balance -= amount + transactionFee;
+  receiver.balance += amount;
+  const transaction = new Transaction({
+    sender: sender._id,
+    receiver: receiver._id,
+    amount,
+    transactionType: "sendMoney",
+    transactionFee,
+    transactionID: generateTransactionID(),
+    timestamp: new Date(),
+  });
+
+  await Promise.all([sender.save(), receiver.save(), transaction.save()]);
+
+  await Promise.all([
+    sender.updateOne({ $push: { transactions: transaction._id } }),
+    receiver.updateOne({ $push: { transactions: transaction._id } }),
+  ]);
+
+  return transaction;
+};
+
+const cashOutIntoDB = async (
+  senderId: string,
+  receiverId: string,
+  amount: number
+): Promise<ITransaction> => {
+  const [sender, adminReceiver] = await Promise.all([
+    UsersModel.findOne({ _id: senderId }),
+    AdminModel.findOne({ mobileNumber: receiverId }),
+  ]);
+
+  if (!sender || !adminReceiver)
+    throw new ApiError(httpStatus.BAD_REQUEST, "Sender or receiver not found");
+
+  const fee = amount * 0.005;
+  
+
+  if (sender.balance < amount + fee)
+    throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient balance");
+
+  sender.balance -= amount + fee;
+  adminReceiver.balance += amount + fee;
+  const transaction = new Transaction({
+    sender: sender._id,
+    receiver: adminReceiver._id,
+    amount,
+    transactionType: "cashOut",
+    transactionFee: fee,
+    transactionID: generateTransactionID(),
+    timestamp: new Date(),
+  });
+
+  await Promise.all([
+    sender.save(),
+    adminReceiver.save(),
+   
+    transaction.save(),
+    sender.updateOne({ $push: { transactions: transaction._id } }),
+    adminReceiver.updateOne({ $push: { transactions: transaction._id } }),
+  ]);
+
+  return transaction;
+};
+
+const cashinAgentInsertIntoDB = async (
+  senderId: string,
+  receiverId: string,
+  amount: number
+): Promise<ITransaction> => {
+  const sender = await AgentsModel.findOne({ _id: senderId });
+  const receiver = await UsersModel.findOne({ mobileNumber: receiverId });
+
+  if (!sender || !receiver) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Sender or receiver not found");
+  }
+  if (sender.balance < amount) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient balance");
+  }
+  sender.balance -= amount;
+  receiver.balance += amount;
+  const transaction = new Transaction({
+    sender: sender._id,
+    receiver: receiver._id,
+    amount,
+    transactionType: "cashInAgent",
+    transactionFee: 0,
+    transactionID: generateTransactionID(),
+    timestamp: new Date(),
+  });
+
+  await Promise.all([sender.save(), receiver.save(), transaction.save()]);
+
+  await Promise.all([
+    sender.updateOne({ $push: { transactions: transaction._id } }),
+    receiver.updateOne({ $push: { transactions: transaction._id } }),
+  ]);
+
+  return transaction;
+};
+
 
 export const loginFromDB = async (reqBody: IAgent): Promise<void> => {
   const user: any = await AgentsModel.aggregate([
     { $match: reqBody },
-    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1 } },
+    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1 , approvalStatus: 1 } },
   ]);
   return user;
-};
-
-export const userUpdateInDB = async (
-  userId: string,
-  updateData: Partial<IAgent>
-): Promise<any | null> => {
-  try {
-    const result: any = await AgentsModel.updateOne(
-      { _id: userId },
-      { $set: updateData }
-    );
-
-    return result;
-  } catch (error) {
-    // Handle any errors that occur during the update process.
-   
-    throw error; // Rethrow the error or handle it as needed.
-  }
 };

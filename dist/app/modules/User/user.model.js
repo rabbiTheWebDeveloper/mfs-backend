@@ -33,6 +33,7 @@ const userSchema = new mongoose_1.Schema({
     accountType: { type: String, default: 'User' },
     nid: String,
     balance: { type: Number, default: 40 },
+    active: { type: Boolean, default: true },
     lastLoginDevice: String,
     transactions: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Transaction' }]
 }, {

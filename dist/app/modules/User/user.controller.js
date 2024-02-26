@@ -17,6 +17,8 @@ const responseHandler_1 = require("../../utlis/responseHandler");
 const user_service_1 = require("./user.service");
 const catchAsync_1 = __importDefault(require("../../shared/catchAsync"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const http_status_1 = __importDefault(require("http-status"));
+const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 exports.registration = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const reqBody = req.body;
     const product = yield (0, user_service_1.registrationFromDB)(reqBody);
@@ -25,7 +27,7 @@ exports.registration = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
 exports.login = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const reqBody = req.body;
     const data = yield (0, user_service_1.loginFromDB)(reqBody);
-    if ((data === null || data === void 0 ? void 0 : data.length) > 0) {
+    if (data[0]["active"] && (data === null || data === void 0 ? void 0 : data.length) > 0) {
         let Payload = {
             exp: Math.floor(Date.now() / 1000) + 50 * 24 * 60 * 60,
             data: data[0]["_id"],
@@ -34,7 +36,8 @@ exports.login = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, 
         res.status(200).json({ status: "success", token: token, data: data[0] });
     }
     else {
-        res.status(401).json({ status: "unauthorized" });
+        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, `Unauthorized user`);
+        // res.status(401).json({ status: "unauthorized" });
     }
     // }
 }));

@@ -9,4 +9,5 @@ export interface IUser extends Document {
   balance: number;
   lastLoginDevice?: string;
   transactions: Types.ObjectId[];
+  active: boolean;
 }
