@@ -19,6 +19,8 @@ const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const http_status_1 = __importDefault(require("http-status"));
 const transactionID_1 = require("../../utlis/transactionID");
 const user_model_1 = require("../User/user.model");
+const agent_model_1 = require("../Agent/agent.model");
+const admin_model_1 = require("../Admin/admin.model");
 const insertIntoDB = (data) => __awaiter(void 0, void 0, void 0, function* () {
     const user = new transaction_model_1.Transaction(data);
     yield user.save();
@@ -27,36 +29,69 @@ const insertIntoDB = (data) => __awaiter(void 0, void 0, void 0, function* () {
 const sentMoneyInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
     const sender = yield user_model_1.UsersModel.findOne({ mobileNumber: senderId });
     const receiver = yield user_model_1.UsersModel.findOne({ mobileNumber: receiverId });
-    console.log(sender, receiver);
     if (!sender || !receiver) {
-        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Sender or receiver not found');
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Sender or receiver not found");
     }
     if (sender.balance < amount) {
-        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Insufficient balance');
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Insufficient balance");
     }
-    const transactionFee = (amount > 100) ? 5 : 0;
-    sender.balance -= (amount + transactionFee);
+    const transactionFee = amount > 100 ? 5 : 0;
+    sender.balance -= amount + transactionFee;
     receiver.balance += amount;
-    yield sender.save();
-    yield receiver.save();
     const transaction = new transaction_model_1.Transaction({
         sender: sender._id,
         receiver: receiver._id,
         amount,
-        transactionType: 'sendMoney',
+        transactionType: "sendMoney",
         transactionFee,
         transactionID: (0, transactionID_1.generateTransactionID)(),
-        timestamp: new Date()
+        timestamp: new Date(),
     });
-    console.log(transaction);
-    yield transaction.save();
-    sender.transactions.push(transaction._id);
-    receiver.transactions.push(transaction._id);
-    yield sender.save();
-    yield receiver.save();
+    yield Promise.all([sender.save(), receiver.save(), transaction.save()]);
+    yield Promise.all([
+        sender.updateOne({ $push: { transactions: transaction._id } }),
+        receiver.updateOne({ $push: { transactions: transaction._id } }),
+    ]);
+    return transaction;
+});
+const cashOutIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
+    const [sender, agentReceiver, admin] = yield Promise.all([
+        user_model_1.UsersModel.findOne({ _id: senderId }),
+        agent_model_1.AgentsModel.findOne({ mobileNumber: receiverId }),
+        admin_model_1.AdminModel.findOne()
+    ]);
+    if (!sender || !agentReceiver || !admin)
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Sender or receiver not found");
+    const cashOutFee = amount * 0.015;
+    const adminFee = amount * 0.005;
+    const agentFee = amount * 0.01;
+    if (sender.balance < amount + cashOutFee)
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Insufficient balance");
+    sender.balance -= amount + cashOutFee;
+    agentReceiver.balance += amount + agentFee;
+    if (admin.balance !== undefined)
+        admin.balance += adminFee;
+    const transaction = new transaction_model_1.Transaction({
+        sender: sender._id,
+        receiver: agentReceiver._id,
+        amount,
+        transactionType: "cashOut",
+        transactionFee: cashOutFee,
+        transactionID: (0, transactionID_1.generateTransactionID)(),
+        timestamp: new Date(),
+    });
+    yield Promise.all([
+        sender.save(),
+        agentReceiver.save(),
+        admin.save(),
+        transaction.save(),
+        sender.updateOne({ $push: { transactions: transaction._id } }),
+        agentReceiver.updateOne({ $push: { transactions: transaction._id } })
+    ]);
     return transaction;
 });
 exports.Transactionservice = {
     insertIntoDB,
     sentMoneyInsertIntoDB,
+    cashOutIntoDB,
 };

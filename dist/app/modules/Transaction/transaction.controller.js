@@ -29,6 +29,20 @@ const insertIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         data: result,
     });
 }));
+const cashOutIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const payload = req.body;
+    const user = req.headers.id;
+    payload.userId = user;
+    console.log(payload);
+    const result = yield transaction_service_1.Transactionservice.cashOutIntoDB(payload.userId, payload.receiverId, payload.amount);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Sent Money successfully!",
+        data: result,
+    });
+}));
 exports.TransactionController = {
     insertIntoDB,
+    cashOutIntoDB
 };

@@ -21,11 +21,27 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
 });
 
 
+const cashOutIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const user = req.headers.id;
+  payload.userId = user;
+  console.log(payload)
+  const result = await Transactionservice.cashOutIntoDB(payload.userId, payload.receiverId, payload.amount);
+  sendReponse<ITransaction>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Sent Money successfully!",
+    data: result,
+  });
+});
+
+
 
 
 
 
 export const TransactionController = {
   insertIntoDB,
+  cashOutIntoDB
 
 };

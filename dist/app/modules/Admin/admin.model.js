@@ -32,6 +32,7 @@ const adminSchema = new mongoose_1.Schema({
     email: { type: String, unique: true },
     accountType: { type: String, default: 'Admin' },
     nid: String,
+    balance: { type: Number, default: 0 },
     lastLoginDevice: String
 }, {
     timestamps: true,

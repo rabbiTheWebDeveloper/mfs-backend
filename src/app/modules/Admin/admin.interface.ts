@@ -6,6 +6,7 @@ export interface IAdmin extends Document {
   email: string;
   accountType: string;
   nid: string;
+  balance: number;
   lastLoginDevice?: string;
 }
 
