@@ -28,7 +28,16 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
+const transactionIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const user = req.headers.id;
+  const result = await Transactionservice.transactionIntoDB(user);
+  sendReponse<object | null>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "transactionList retrieved successfully!",
+    data: result,
+  });
+});
 const balanceIntoDB = catchAsync(async (req: Request, res: Response) => {
   const user = req.headers.id;
   const result = await Transactionservice.balanceIntoDB(user);
@@ -82,4 +91,5 @@ export const TransactionController = {
   cashOutIntoDB,
   cashinAgentInsertIntoDB,
   balanceIntoDB,
+  transactionIntoDB
 };

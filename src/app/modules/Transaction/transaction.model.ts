@@ -3,8 +3,8 @@ import { ITransaction } from "./transaction.interface";
 
 type transactionModel = Model<ITransaction, Record<string, unknown>>;
 const transactionSchema = new Schema<ITransaction>({
-  sender: { type: Schema.Types.ObjectId, refPath: 'senderModel' },
-  receiver: { type: Schema.Types.ObjectId, refPath: 'receiverModel' },
+  sender: { type: Schema.Types.ObjectId, ref:'users' ||'agents' },
+  receiver:{ type: Schema.Types.ObjectId, ref:'users'||'agents' },
   amount: Number,
   transactionType: String,
   transactionFee: Number,

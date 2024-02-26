@@ -7,6 +7,7 @@ router.post("/sentMoney", TransactionController.insertIntoDB);
 router.post("/cashOut",auth, TransactionController.cashOutIntoDB);
 router.post("/cash-in-agent",auth, TransactionController.cashinAgentInsertIntoDB);
 router.get("/balance",auth, TransactionController.balanceIntoDB);
+router.get("/transaction-list",auth, TransactionController.transactionIntoDB);
 
 
 export const transactionRoutes = router;

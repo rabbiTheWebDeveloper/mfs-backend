@@ -20,13 +20,26 @@ const insertIntoDB = async (data: any): Promise<ITransaction> => {
   return user;
 };
 const balanceIntoDB = async (user: any): Promise<object | null> => {
-  console.log("sadasdas", user);
   const sender = await AgentsModel.findOne({ _id: user });
   if (sender) {
     return { balance: sender.balance };
   } else {
     const receiver = await UsersModel.findOne({ _id: user });
     return receiver ? { balance: receiver.balance } : null;
+  }
+};
+
+const transactionIntoDB = async (userId: any): Promise<ITransaction[]> => {
+  try {
+    const transactionList = await Transaction.find({ sender: userId })
+      .populate("sender")
+      .populate("receiver");
+    return transactionList;
+  } catch (error: any) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Error fetching transactions: ${error.message}`
+    );
   }
 };
 const sentMoneyInsertIntoDB = async (
@@ -155,4 +168,5 @@ export const Transactionservice = {
   cashOutIntoDB,
   cashinAgentInsertIntoDB,
   balanceIntoDB,
+  transactionIntoDB
 };

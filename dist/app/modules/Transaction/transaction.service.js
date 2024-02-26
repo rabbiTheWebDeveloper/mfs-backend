@@ -27,7 +27,6 @@ const insertIntoDB = (data) => __awaiter(void 0, void 0, void 0, function* () {
     return user;
 });
 const balanceIntoDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("sadasdas", user);
     const sender = yield agent_model_1.AgentsModel.findOne({ _id: user });
     if (sender) {
         return { balance: sender.balance };
@@ -35,6 +34,17 @@ const balanceIntoDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
     else {
         const receiver = yield user_model_1.UsersModel.findOne({ _id: user });
         return receiver ? { balance: receiver.balance } : null;
+    }
+});
+const transactionIntoDB = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const transactionList = yield transaction_model_1.Transaction.find({ sender: userId })
+            .populate("sender")
+            .populate("receiver");
+        return transactionList;
+    }
+    catch (error) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, `Error fetching transactions: ${error.message}`);
     }
 });
 const sentMoneyInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
@@ -134,4 +144,5 @@ exports.Transactionservice = {
     cashOutIntoDB,
     cashinAgentInsertIntoDB,
     balanceIntoDB,
+    transactionIntoDB
 };

@@ -29,6 +29,16 @@ const insertIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         data: result,
     });
 }));
+const transactionIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.headers.id;
+    const result = yield transaction_service_1.Transactionservice.transactionIntoDB(user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "transactionList retrieved successfully!",
+        data: result,
+    });
+}));
 const balanceIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.headers.id;
     const result = yield transaction_service_1.Transactionservice.balanceIntoDB(user);
@@ -70,4 +80,5 @@ exports.TransactionController = {
     cashOutIntoDB,
     cashinAgentInsertIntoDB,
     balanceIntoDB,
+    transactionIntoDB
 };
