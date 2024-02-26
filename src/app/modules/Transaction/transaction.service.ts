@@ -11,11 +11,23 @@ import { generateTransactionID } from "../../utlis/transactionID";
 import { UsersModel } from "../User/user.model";
 import { AgentsModel } from "../Agent/agent.model";
 import { AdminModel } from "../Admin/admin.model";
+import { IUser } from "../User/user.interface";
+import { IAgent } from "../Agent/agent.interface";
 
 const insertIntoDB = async (data: any): Promise<ITransaction> => {
   const user = new Transaction(data);
   await user.save();
   return user;
+};
+const balanceIntoDB = async (user: any): Promise<object | null> => {
+  console.log("sadasdas", user);
+  const sender = await AgentsModel.findOne({ _id: user });
+  if (sender) {
+    return { balance: sender.balance };
+  } else {
+    const receiver = await UsersModel.findOne({ _id: user });
+    return receiver ? { balance: receiver.balance } : null;
+  }
 };
 const sentMoneyInsertIntoDB = async (
   senderId: string,
@@ -62,7 +74,7 @@ const cashOutIntoDB = async (
   const [sender, agentReceiver, admin] = await Promise.all([
     UsersModel.findOne({ _id: senderId }),
     AgentsModel.findOne({ mobileNumber: receiverId }),
-    AdminModel.findOne()
+    AdminModel.findOne(),
   ]);
 
   if (!sender || !agentReceiver || !admin)
@@ -95,15 +107,52 @@ const cashOutIntoDB = async (
     admin.save(),
     transaction.save(),
     sender.updateOne({ $push: { transactions: transaction._id } }),
-    agentReceiver.updateOne({ $push: { transactions: transaction._id } })
+    agentReceiver.updateOne({ $push: { transactions: transaction._id } }),
   ]);
 
   return transaction;
 };
 
+const cashinAgentInsertIntoDB = async (
+  senderId: string,
+  receiverId: string,
+  amount: number
+): Promise<ITransaction> => {
+  const sender = await AgentsModel.findOne({ _id: senderId });
+  const receiver = await UsersModel.findOne({ mobileNumber: receiverId });
+
+  if (!sender || !receiver) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Sender or receiver not found");
+  }
+  if (sender.balance < amount) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient balance");
+  }
+  sender.balance -= amount;
+  receiver.balance += amount;
+  const transaction = new Transaction({
+    sender: sender._id,
+    receiver: receiver._id,
+    amount,
+    transactionType: "cashInAgent",
+    transactionFee: 0,
+    transactionID: generateTransactionID(),
+    timestamp: new Date(),
+  });
+
+  await Promise.all([sender.save(), receiver.save(), transaction.save()]);
+
+  await Promise.all([
+    sender.updateOne({ $push: { transactions: transaction._id } }),
+    receiver.updateOne({ $push: { transactions: transaction._id } }),
+  ]);
+
+  return transaction;
+};
 
 export const Transactionservice = {
   insertIntoDB,
   sentMoneyInsertIntoDB,
   cashOutIntoDB,
+  cashinAgentInsertIntoDB,
+  balanceIntoDB,
 };

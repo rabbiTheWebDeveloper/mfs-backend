@@ -4,14 +4,23 @@ import catchAsync from "../../shared/catchAsync";
 import sendReponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 import { ITransaction } from "./transaction.interface";
-import { bookFilterableFields, bookSearchableFields } from "./transaction.constants";
+import {
+  bookFilterableFields,
+  bookSearchableFields,
+} from "./transaction.constants";
 import pick from "../../shared/pick";
+import { IUser } from "../User/user.interface";
+import { IAgent } from "../Agent/agent.interface";
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
   // const user = req.headers.id;
   // payload.userId = user;
-  const result = await Transactionservice.sentMoneyInsertIntoDB(payload.senderId, payload.receiverId, payload.amount);
+  const result = await Transactionservice.sentMoneyInsertIntoDB(
+    payload.senderId,
+    payload.receiverId,
+    payload.amount
+  );
   sendReponse<ITransaction>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -20,13 +29,27 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const balanceIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const user = req.headers.id;
+  const result = await Transactionservice.balanceIntoDB(user);
+  sendReponse<object | null>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Balance successfully!",
+    data: result,
+  });
+});
 
 const cashOutIntoDB = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
   const user = req.headers.id;
   payload.userId = user;
-  console.log(payload)
-  const result = await Transactionservice.cashOutIntoDB(payload.userId, payload.receiverId, payload.amount);
+  console.log(payload);
+  const result = await Transactionservice.cashOutIntoDB(
+    payload.userId,
+    payload.receiverId,
+    payload.amount
+  );
   sendReponse<ITransaction>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -34,14 +57,29 @@ const cashOutIntoDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
-
-
-
-
+const cashinAgentInsertIntoDB = catchAsync(
+  async (req: Request, res: Response) => {
+    const payload = req.body;
+    const user = req.headers.id;
+    payload.userId = user;
+    console.log(payload);
+    const result = await Transactionservice.cashinAgentInsertIntoDB(
+      payload.userId,
+      payload.receiverId,
+      payload.amount
+    );
+    sendReponse<ITransaction>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Cash IN  Agent successfully!",
+      data: result,
+    });
+  }
+);
 
 export const TransactionController = {
   insertIntoDB,
-  cashOutIntoDB
-
+  cashOutIntoDB,
+  cashinAgentInsertIntoDB,
+  balanceIntoDB,
 };

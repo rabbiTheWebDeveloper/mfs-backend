@@ -10,4 +10,6 @@ const AuthVerifyMiddleware_1 = require("../../middleware/AuthVerifyMiddleware");
 const router = express_1.default.Router();
 router.post("/sentMoney", transaction_controller_1.TransactionController.insertIntoDB);
 router.post("/cashOut", AuthVerifyMiddleware_1.auth, transaction_controller_1.TransactionController.cashOutIntoDB);
+router.post("/cash-in-agent", AuthVerifyMiddleware_1.auth, transaction_controller_1.TransactionController.cashinAgentInsertIntoDB);
+router.get("/balance", AuthVerifyMiddleware_1.auth, transaction_controller_1.TransactionController.balanceIntoDB);
 exports.transactionRoutes = router;

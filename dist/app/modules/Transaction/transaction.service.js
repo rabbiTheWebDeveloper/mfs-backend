@@ -26,6 +26,17 @@ const insertIntoDB = (data) => __awaiter(void 0, void 0, void 0, function* () {
     yield user.save();
     return user;
 });
+const balanceIntoDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("sadasdas", user);
+    const sender = yield agent_model_1.AgentsModel.findOne({ _id: user });
+    if (sender) {
+        return { balance: sender.balance };
+    }
+    else {
+        const receiver = yield user_model_1.UsersModel.findOne({ _id: user });
+        return receiver ? { balance: receiver.balance } : null;
+    }
+});
 const sentMoneyInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
     const sender = yield user_model_1.UsersModel.findOne({ mobileNumber: senderId });
     const receiver = yield user_model_1.UsersModel.findOne({ mobileNumber: receiverId });
@@ -58,7 +69,7 @@ const cashOutIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0
     const [sender, agentReceiver, admin] = yield Promise.all([
         user_model_1.UsersModel.findOne({ _id: senderId }),
         agent_model_1.AgentsModel.findOne({ mobileNumber: receiverId }),
-        admin_model_1.AdminModel.findOne()
+        admin_model_1.AdminModel.findOne(),
     ]);
     if (!sender || !agentReceiver || !admin)
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Sender or receiver not found");
@@ -86,7 +97,34 @@ const cashOutIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0
         admin.save(),
         transaction.save(),
         sender.updateOne({ $push: { transactions: transaction._id } }),
-        agentReceiver.updateOne({ $push: { transactions: transaction._id } })
+        agentReceiver.updateOne({ $push: { transactions: transaction._id } }),
+    ]);
+    return transaction;
+});
+const cashinAgentInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
+    const sender = yield agent_model_1.AgentsModel.findOne({ _id: senderId });
+    const receiver = yield user_model_1.UsersModel.findOne({ mobileNumber: receiverId });
+    if (!sender || !receiver) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Sender or receiver not found");
+    }
+    if (sender.balance < amount) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Insufficient balance");
+    }
+    sender.balance -= amount;
+    receiver.balance += amount;
+    const transaction = new transaction_model_1.Transaction({
+        sender: sender._id,
+        receiver: receiver._id,
+        amount,
+        transactionType: "cashInAgent",
+        transactionFee: 0,
+        transactionID: (0, transactionID_1.generateTransactionID)(),
+        timestamp: new Date(),
+    });
+    yield Promise.all([sender.save(), receiver.save(), transaction.save()]);
+    yield Promise.all([
+        sender.updateOne({ $push: { transactions: transaction._id } }),
+        receiver.updateOne({ $push: { transactions: transaction._id } }),
     ]);
     return transaction;
 });
@@ -94,4 +132,6 @@ exports.Transactionservice = {
     insertIntoDB,
     sentMoneyInsertIntoDB,
     cashOutIntoDB,
+    cashinAgentInsertIntoDB,
+    balanceIntoDB,
 };
