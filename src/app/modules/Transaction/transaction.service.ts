@@ -47,8 +47,9 @@ const sentMoneyInsertIntoDB = async (
   receiverId: string,
   amount: number
 ): Promise<ITransaction> => {
-  const sender = await UsersModel.findOne({_id: senderId });
+  const sender = await UsersModel.findOne({ _id: senderId });
   const receiver = await UsersModel.findOne({ mobileNumber: receiverId });
+  const admin = await AdminModel.findOne();
 
   if (!sender || !receiver) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Sender or receiver not found");
@@ -57,6 +58,14 @@ const sentMoneyInsertIntoDB = async (
     throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient balance");
   }
   const transactionFee = amount > 100 ? 5 : 0;
+
+  if (admin) {
+    admin.balance += transactionFee;
+    await admin.save();
+  } else {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Admin not found");
+  }
+
   sender.balance -= amount + transactionFee;
   receiver.balance += amount;
   const transaction = new Transaction({
@@ -78,6 +87,7 @@ const sentMoneyInsertIntoDB = async (
 
   return transaction;
 };
+
 
 const cashOutIntoDB = async (
   senderId: string,

@@ -50,6 +50,7 @@ const transactionIntoDB = (userId) => __awaiter(void 0, void 0, void 0, function
 const sentMoneyInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
     const sender = yield user_model_1.UsersModel.findOne({ _id: senderId });
     const receiver = yield user_model_1.UsersModel.findOne({ mobileNumber: receiverId });
+    const admin = yield admin_model_1.AdminModel.findOne();
     if (!sender || !receiver) {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Sender or receiver not found");
     }
@@ -57,6 +58,13 @@ const sentMoneyInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Insufficient balance");
     }
     const transactionFee = amount > 100 ? 5 : 0;
+    if (admin) {
+        admin.balance += transactionFee;
+        yield admin.save();
+    }
+    else {
+        throw new ApiError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "Admin not found");
+    }
     sender.balance -= amount + transactionFee;
     receiver.balance += amount;
     const transaction = new transaction_model_1.Transaction({
