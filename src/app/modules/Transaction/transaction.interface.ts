@@ -7,4 +7,6 @@ export interface ITransaction extends Document {
   transactionFee: number;
   transactionID: string;
   timestamp: Date;
+  senderType: string; // Add senderType
+  receiverType: string; // Add receiverType
 }
