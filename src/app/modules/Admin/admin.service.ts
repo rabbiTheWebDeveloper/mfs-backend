@@ -93,8 +93,8 @@ const sentMoneyInsertIntoDB = async (
   return transaction;
 };
 
-const cashOutIntoDB = async (
-  senderId: string,
+const cashOutUserIntoDB = async (
+  senderId: any,
   receiverId: string,
   amount: number
 ): Promise<ITransaction> => {
@@ -115,7 +115,7 @@ const cashOutIntoDB = async (
     sender: sender._id,
     receiver: adminReceiver._id,
     amount,
-    transactionType: "cashOut",
+    transactionType: "cashOut From admin",
     transactionFee: fee,
     transactionID: generateTransactionID(),
     timestamp: new Date(),
@@ -171,5 +171,5 @@ export const AdminService = {
   loginFromDB,
   userUpdateOnDB,
   agentApprovedUpdateOnDB,
-  cashOutIntoDB,
+  cashOutUserIntoDB,
 };

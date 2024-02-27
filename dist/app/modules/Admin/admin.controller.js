@@ -62,9 +62,23 @@ const agentApprovedUpdateOnDB = (0, catchAsync_1.default)((req, res) => __awaite
         data: result,
     });
 }));
+const cashOutUserIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const payload = req.body;
+    const user = req.headers.id;
+    payload.userId = user;
+    console.log(payload);
+    const result = yield admin_service_1.AdminService.cashOutUserIntoDB(payload.userId, payload.receiverId, payload.amount);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Cash Out Admin successfully!",
+        data: result,
+    });
+}));
 exports.adminController = {
     registration,
     login,
     userUpdateOnDB,
-    agentApprovedUpdateOnDB
+    agentApprovedUpdateOnDB,
+    cashOutUserIntoDB
 };

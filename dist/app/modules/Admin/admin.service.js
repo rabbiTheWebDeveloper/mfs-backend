@@ -85,7 +85,7 @@ const sentMoneyInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0
     ]);
     return transaction;
 });
-const cashOutIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
+const cashOutUserIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
     const [sender, adminReceiver] = yield Promise.all([
         user_model_1.UsersModel.findOne({ _id: senderId }),
         admin_model_1.AdminModel.findOne({ mobileNumber: receiverId }),
@@ -101,7 +101,7 @@ const cashOutIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0
         sender: sender._id,
         receiver: adminReceiver._id,
         amount,
-        transactionType: "cashOut",
+        transactionType: "cashOut From admin",
         transactionFee: fee,
         transactionID: (0, transactionID_1.generateTransactionID)(),
         timestamp: new Date(),
@@ -147,5 +147,5 @@ exports.AdminService = {
     loginFromDB,
     userUpdateOnDB,
     agentApprovedUpdateOnDB,
-    cashOutIntoDB,
+    cashOutUserIntoDB,
 };

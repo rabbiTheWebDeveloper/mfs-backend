@@ -8,6 +8,7 @@ import sendReponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 import { IUser } from "../User/user.interface";
 import { IAgent } from "../Agent/agent.interface";
+import { ITransaction } from "../Transaction/transaction.interface";
  const registration: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const reqBody = req.body;
@@ -57,9 +58,29 @@ const agentApprovedUpdateOnDB =catchAsync(async (req: Request, res: Response) =>
     data: result,
   });
 });
+
+
+const cashOutUserIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const user = req.headers.id;
+  payload.userId = user;
+  console.log(payload);
+  const result = await AdminService.cashOutUserIntoDB(
+    payload.userId,
+    payload.receiverId,
+    payload.amount
+  );
+  sendReponse<ITransaction>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Cash Out Admin successfully!",
+    data: result,
+  });
+});
 export const adminController = {
   registration,
   login,
   userUpdateOnDB,
-  agentApprovedUpdateOnDB
+  agentApprovedUpdateOnDB,
+  cashOutUserIntoDB
 };
