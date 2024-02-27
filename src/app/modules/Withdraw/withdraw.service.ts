@@ -68,7 +68,7 @@ const updateIntoDB = async (
           sender:agent._id,
           receiver:admin._id ,
           amount: result.amount,
-          transactionType: "recharge",
+          transactionType: "withdraw",
           transactionFee: 0,
           transactionID: generateTransactionID(),
           timestamp: new Date(),
