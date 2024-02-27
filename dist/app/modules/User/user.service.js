@@ -58,7 +58,7 @@ exports.registrationFromDB = registrationFromDB;
 const loginFromDB = (reqBody) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.UsersModel.aggregate([
         { $match: reqBody },
-        { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, active: 1 } },
+        { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, active: 1, accountType: 1 } },
     ]);
     return user;
 });

@@ -47,7 +47,7 @@ export const registrationFromDB = async (data: IUser): Promise<IUser> => {
 export const loginFromDB = async (reqBody: IUser): Promise<void> => {
   const user: any = await UsersModel.aggregate([
     { $match: reqBody },
-    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, active: 1 } },
+    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, active: 1  , accountType: 1} },
   ]);
   return user;
 };

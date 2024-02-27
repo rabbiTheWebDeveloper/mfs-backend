@@ -139,7 +139,7 @@ const cashinAgentInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void
 const loginFromDB = (reqBody) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield agent_model_1.AgentsModel.aggregate([
         { $match: reqBody },
-        { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, approvalStatus: 1 } },
+        { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, approvalStatus: 1, accountType: 1 } },
     ]);
     return user;
 });

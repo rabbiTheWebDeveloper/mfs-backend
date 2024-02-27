@@ -155,7 +155,7 @@ const cashinAgentInsertIntoDB = async (
 export const loginFromDB = async (reqBody: IAgent): Promise<void> => {
   const user: any = await AgentsModel.aggregate([
     { $match: reqBody },
-    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1 , approvalStatus: 1 } },
+    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1 , approvalStatus: 1  , accountType: 1} },
   ]);
   return user;
 };

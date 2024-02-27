@@ -31,7 +31,7 @@ const registrationFromDB = async (data: IAdmin): Promise<IAdmin> => {
 const loginFromDB = async (reqBody: IAdmin): Promise<void> => {
   const user: any = await AdminModel.aggregate([
     { $match: reqBody },
-    { $project: { _id: 1, email: 1, name: 1, mobile: 1, photo: 1 } },
+    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, accountType: 1 } },
   ]);
   return user;
 };

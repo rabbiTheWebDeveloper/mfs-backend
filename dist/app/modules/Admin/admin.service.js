@@ -41,7 +41,7 @@ const registrationFromDB = (data) => __awaiter(void 0, void 0, void 0, function*
 const loginFromDB = (reqBody) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield admin_model_1.AdminModel.aggregate([
         { $match: reqBody },
-        { $project: { _id: 1, email: 1, name: 1, mobile: 1, photo: 1 } },
+        { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, accountType: 1 } },
     ]);
     return user;
 });
