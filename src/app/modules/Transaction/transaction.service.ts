@@ -43,11 +43,11 @@ const transactionIntoDB = async (userId: any): Promise<ITransaction[]> => {
   }
 };
 const sentMoneyInsertIntoDB = async (
-  senderId: string,
+  senderId: any,
   receiverId: string,
   amount: number
 ): Promise<ITransaction> => {
-  const sender = await UsersModel.findOne({ mobileNumber: senderId });
+  const sender = await UsersModel.findOne({_id: senderId });
   const receiver = await UsersModel.findOne({ mobileNumber: receiverId });
 
   if (!sender || !receiver) {

@@ -48,7 +48,7 @@ const transactionIntoDB = (userId) => __awaiter(void 0, void 0, void 0, function
     }
 });
 const sentMoneyInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
-    const sender = yield user_model_1.UsersModel.findOne({ mobileNumber: senderId });
+    const sender = yield user_model_1.UsersModel.findOne({ _id: senderId });
     const receiver = yield user_model_1.UsersModel.findOne({ mobileNumber: receiverId });
     if (!sender || !receiver) {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Sender or receiver not found");

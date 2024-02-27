@@ -14,10 +14,10 @@ import { IAgent } from "../Agent/agent.interface";
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
-  // const user = req.headers.id;
-  // payload.userId = user;
+  const user = req.headers.id;
+  payload.userId = user;
   const result = await Transactionservice.sentMoneyInsertIntoDB(
-    payload.senderId,
+    payload.userId,
     payload.receiverId,
     payload.amount
   );
