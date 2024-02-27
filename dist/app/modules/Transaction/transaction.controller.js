@@ -41,7 +41,9 @@ const transactionIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void
 }));
 const balanceIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.headers.id;
-    const result = yield transaction_service_1.Transactionservice.balanceIntoDB(user);
+    const token = req.headers.token;
+    console.log(`balanceIntoDB `, token);
+    const result = yield transaction_service_1.Transactionservice.balanceIntoDB(user, token);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -80,5 +82,5 @@ exports.TransactionController = {
     cashOutIntoDB,
     cashinAgentInsertIntoDB,
     balanceIntoDB,
-    transactionIntoDB
+    transactionIntoDB,
 };

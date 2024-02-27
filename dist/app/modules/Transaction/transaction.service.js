@@ -14,19 +14,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Transactionservice = void 0;
 const transaction_model_1 = require("./transaction.model");
-// import { IGenericResponse } from "../../interfaces/common";
 const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const http_status_1 = __importDefault(require("http-status"));
 const transactionID_1 = require("../../utlis/transactionID");
 const user_model_1 = require("../User/user.model");
 const agent_model_1 = require("../Agent/agent.model");
 const admin_model_1 = require("../Admin/admin.model");
+const loginCheck_1 = require("../../utlis/loginCheck");
 const insertIntoDB = (data) => __awaiter(void 0, void 0, void 0, function* () {
     const user = new transaction_model_1.Transaction(data);
     yield user.save();
     return user;
 });
-const balanceIntoDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
+const balanceIntoDB = (user, token) => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, loginCheck_1.isToken)(token);
     const sender = yield agent_model_1.AgentsModel.findOne({ _id: user });
     const admin = yield admin_model_1.AdminModel.findOne({ _id: user });
     if (sender) {
@@ -156,5 +157,5 @@ exports.Transactionservice = {
     cashOutIntoDB,
     cashinAgentInsertIntoDB,
     balanceIntoDB,
-    transactionIntoDB
+    transactionIntoDB,
 };

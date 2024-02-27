@@ -1,16 +1,9 @@
-import { Request, RequestHandler, Response } from "express";
+import { Request, Response } from "express";
 import { Transactionservice } from "./transaction.service";
 import catchAsync from "../../shared/catchAsync";
 import sendReponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 import { ITransaction } from "./transaction.interface";
-import {
-  bookFilterableFields,
-  bookSearchableFields,
-} from "./transaction.constants";
-import pick from "../../shared/pick";
-import { IUser } from "../User/user.interface";
-import { IAgent } from "../Agent/agent.interface";
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
@@ -40,7 +33,9 @@ const transactionIntoDB = catchAsync(async (req: Request, res: Response) => {
 });
 const balanceIntoDB = catchAsync(async (req: Request, res: Response) => {
   const user = req.headers.id;
-  const result = await Transactionservice.balanceIntoDB(user);
+  const token = req.headers.token;
+  console.log(`balanceIntoDB `, token);
+  const result = await Transactionservice.balanceIntoDB(user , token);
   sendReponse<object | null>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -91,5 +86,5 @@ export const TransactionController = {
   cashOutIntoDB,
   cashinAgentInsertIntoDB,
   balanceIntoDB,
-  transactionIntoDB
+  transactionIntoDB,
 };

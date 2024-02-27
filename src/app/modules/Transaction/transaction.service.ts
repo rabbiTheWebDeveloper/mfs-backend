@@ -1,33 +1,27 @@
-// import { SortOrder } from "mongoose";
-// import { paginationHelpers } from "../../helpers/paginationHelper";
-// import { IPaginationOptions } from "../../interfaces/pagination";
-// import { TransactionSearchableFields } from "./transaction.constants";
 import { ITransaction } from "./transaction.interface";
 import { Transaction } from "./transaction.model";
-// import { IGenericResponse } from "../../interfaces/common";
 import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";
 import { generateTransactionID } from "../../utlis/transactionID";
 import { UsersModel } from "../User/user.model";
 import { AgentsModel } from "../Agent/agent.model";
 import { AdminModel } from "../Admin/admin.model";
-import { IUser } from "../User/user.interface";
-import { IAgent } from "../Agent/agent.interface";
+import { isToken } from "../../utlis/loginCheck";
 
 const insertIntoDB = async (data: any): Promise<ITransaction> => {
   const user = new Transaction(data);
   await user.save();
   return user;
 };
-const balanceIntoDB = async (user: any): Promise<object | null> => {
+const balanceIntoDB = async (user: any, token: any): Promise<object | null> => {
+  await isToken(token);
   const sender = await AgentsModel.findOne({ _id: user });
   const admin = await AdminModel.findOne({ _id: user });
   if (sender) {
     return { balance: sender.balance };
-  }else if( admin){
+  } else if (admin) {
     return { balance: admin.balance };
-  }
-   else {
+  } else {
     const receiver = await UsersModel.findOne({ _id: user });
     return receiver ? { balance: receiver.balance } : null;
   }
@@ -91,7 +85,6 @@ const sentMoneyInsertIntoDB = async (
 
   return transaction;
 };
-
 
 const cashOutIntoDB = async (
   senderId: string,
@@ -182,5 +175,5 @@ export const Transactionservice = {
   cashOutIntoDB,
   cashinAgentInsertIntoDB,
   balanceIntoDB,
-  transactionIntoDB
+  transactionIntoDB,
 };

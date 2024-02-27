@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, registration, userUpdate } from "./user.controller";
+import { login, registration,  } from "./user.controller";
 import validateRequest from "../../middleware/validateRequest";
 import { UserValidation } from "./user.validation";
 

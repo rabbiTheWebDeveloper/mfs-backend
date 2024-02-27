@@ -12,6 +12,36 @@ import { generateTransactionID } from "../../utlis/transactionID";
 
 const registrationFromDB = async (data: IAdmin): Promise<IAdmin> => {
   try {
+    const userFind = await UsersModel.find({
+      $or: [
+        { mobileNumber: data.mobileNumber },
+        { email: data.email },
+        { nid: data.nid },
+      ],
+    });
+    if (userFind.length > 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User already exists");
+    }
+    const agentFind = await AgentsModel.find({
+      $or: [
+        { mobileNumber: data.mobileNumber },
+        { email: data.email },
+        { nid: data.nid },
+      ],
+    });
+    if (agentFind.length > 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User already exists");
+    }
+    const adminFind = await AgentsModel.find({
+      $or: [
+        { mobileNumber: data.mobileNumber },
+        { email: data.email },
+        { nid: data.nid },
+      ],
+    });
+    if (adminFind.length > 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User already exists");
+    }
     const user = new AdminModel(data);
     await user.save();
 
@@ -28,14 +58,30 @@ const registrationFromDB = async (data: IAdmin): Promise<IAdmin> => {
   }
 };
 
-const loginFromDB = async (reqBody: IAdmin): Promise<void> => {
-  const user: any = await AdminModel.aggregate([
-    { $match: reqBody },
-    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, accountType: 1 } },
-  ]);
-  return user;
+const loginFromDB = async (credentials: IAgent): Promise<any> => {
+  try {
+    const { mobileNumber } = credentials;
+    const user = await AdminModel.findOne(
+      { mobileNumber },
+      {
+        _id: 1,
+        email: 1,
+        name: 1,
+        mobileNumber: 1,
+        accountType: 1,
+        pin: 1,
+      }
+    );
+    return user;
+  } catch (error) {
+    console.error("Error in loginFromDB:", error);
+    throw new Error(
+      "An error occurred while fetching user data from the database"
+    );
+  }
 };
- 
+
+
 const userUpdateOnDB = async (
   id: string,
   payload: Partial<IUser>
@@ -165,8 +211,7 @@ const cashinAgentInsertIntoDB = async (
   return transaction;
 };
 
-
-const userListInDB = async (adminID :any): Promise<IUser[]> => {
+const userListInDB = async (adminID: any): Promise<IUser[]> => {
   const admin = await AdminModel.findOne({ _id: adminID });
   if (!admin) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Admin not found");
@@ -175,16 +220,16 @@ const userListInDB = async (adminID :any): Promise<IUser[]> => {
   return user;
 };
 
-const agentListInDB = async (adminID :any): Promise< IAgent[]> => { 
+const agentListInDB = async (adminID: any): Promise<IAgent[]> => {
   const admin = await AdminModel.findOne({ _id: adminID });
   if (!admin) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Admin not found");
   }
   const agent = await AgentsModel.find();
   return agent;
- }
+};
 
- const cashinAdminToAgentInsertIntoDB = async (
+const cashinAdminToAgentInsertIntoDB = async (
   senderId: string,
   receiverId: string,
   amount: number
@@ -262,8 +307,8 @@ export const AdminService = {
   userUpdateOnDB,
   agentApprovedUpdateOnDB,
   cashOutUserIntoDB,
-  userListInDB
-  ,agentListInDB,
+  userListInDB,
+  agentListInDB,
   cashinAdminToAgentInsertIntoDB,
-  cashinAdminToUserInsertIntoDB
+  cashinAdminToUserInsertIntoDB,
 };

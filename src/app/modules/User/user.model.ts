@@ -10,6 +10,7 @@ import mongoose, { Schema } from "mongoose";
     balance: { type: Number, default: 40 }, // Initial bonus for users
     active: { type: Boolean, default: true }, // Initial bonus for users
     lastLoginDevice: String,
+    activeSessionToken: String,
     transactions: [{ type: Schema.Types.ObjectId, ref: 'Transaction' }]
 } , {
   timestamps: true,

@@ -10,7 +10,8 @@ const agentSchema = new Schema <IAgent>({
   nid: String,
   balance: { type: Number, default: 100000 }, // Initial balance for agents
   transactions: [{ type: Schema.Types.ObjectId, ref: 'Transaction' }],
-  approvalStatus: { type: String, default: 'Pending' } // Approved, Rejected
+  approvalStatus: { type: String, default: 'Pending' },
+  activeSessionToken: String, // Approved, Rejected
 },{
   timestamps: true,
   versionKey:false

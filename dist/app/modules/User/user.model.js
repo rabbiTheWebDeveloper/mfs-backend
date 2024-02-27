@@ -35,6 +35,7 @@ const userSchema = new mongoose_1.Schema({
     balance: { type: Number, default: 40 },
     active: { type: Boolean, default: true },
     lastLoginDevice: String,
+    activeSessionToken: String,
     transactions: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Transaction' }]
 }, {
     timestamps: true,

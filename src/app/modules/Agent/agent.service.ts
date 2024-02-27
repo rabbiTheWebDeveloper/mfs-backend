@@ -12,20 +12,57 @@ export const registrationFromDB = async (data: IAgent): Promise<IAgent> => {
   try {
     const admin = await AdminModel.findOne();
     if (!admin || admin.balance < 100000) {
-      throw new ApiError(httpStatus.BAD_REQUEST, "Please contact the administrator");
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Please contact the administrator"
+      );
+    }
+
+    const userFind = await UsersModel.find({
+      $or: [
+        { mobileNumber: data.mobileNumber },
+        { email: data.email },
+        { nid: data.nid },
+      ],
+    });
+    if (userFind.length > 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User already exists");
+    }
+    const agentFind = await AgentsModel.find({
+      $or: [
+        { mobileNumber: data.mobileNumber },
+        { email: data.email },
+        { nid: data.nid },
+      ],
+    });
+    if (agentFind.length > 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User already exists");
+    }
+    const adminFind = await AgentsModel.find({
+      $or: [
+        { mobileNumber: data.mobileNumber },
+        { email: data.email },
+        { nid: data.nid },
+      ],
+    });
+    if (adminFind.length > 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User already exists");
     }
     const user = new AgentsModel(data);
     await user.save();
     admin.balance -= user.balance;
-    await Promise.all([admin.save(), new Transaction({
-      sender: admin._id,
-      receiver: user._id,
-      amount: user.balance,
-      transactionType: "gift",
-      transactionFee: 0,
-      transactionID: generateTransactionID(),
-      timestamp: new Date(),
-    }).save()]);
+    await Promise.all([
+      admin.save(),
+      new Transaction({
+        sender: admin._id,
+        receiver: user._id,
+        amount: user.balance,
+        transactionType: "gift",
+        transactionFee: 0,
+        transactionID: generateTransactionID(),
+        timestamp: new Date(),
+      }).save(),
+    ]);
     return user;
   } catch (error: any) {
     if (error.code === 11000 && error.keyPattern?.email === 1) {
@@ -86,7 +123,6 @@ const cashOutIntoDB = async (
     throw new ApiError(httpStatus.BAD_REQUEST, "Sender or receiver not found");
 
   const fee = amount * 0.005;
-  
 
   if (sender.balance < amount + fee)
     throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient balance");
@@ -106,7 +142,7 @@ const cashOutIntoDB = async (
   await Promise.all([
     sender.save(),
     adminReceiver.save(),
-   
+
     transaction.save(),
     sender.updateOne({ $push: { transactions: transaction._id } }),
     adminReceiver.updateOne({ $push: { transactions: transaction._id } }),
@@ -151,11 +187,26 @@ const cashinAgentInsertIntoDB = async (
   return transaction;
 };
 
-
-export const loginFromDB = async (reqBody: IAgent): Promise<void> => {
-  const user: any = await AgentsModel.aggregate([
-    { $match: reqBody },
-    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1 , approvalStatus: 1  , accountType: 1} },
-  ]);
-  return user;
+export const loginFromDB = async (credentials: IAgent): Promise<any> => {
+  try {
+    const { mobileNumber } = credentials;
+    const user = await AgentsModel.findOne(
+      { mobileNumber },
+      {
+        _id: 1,
+        email: 1,
+        name: 1,
+        mobileNumber: 1,
+        approvalStatus: 1,
+        accountType: 1,
+        pin: 1,
+      }
+    );
+    return user;
+  } catch (error) {
+    console.error("Error in loginFromDB:", error);
+    throw new Error(
+      "An error occurred while fetching user data from the database"
+    );
+  }
 };

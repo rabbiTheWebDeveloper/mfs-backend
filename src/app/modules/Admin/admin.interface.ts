@@ -8,6 +8,7 @@ export interface IAdmin extends Document {
   nid: string;
   balance: number;
   lastLoginDevice?: string;
+  activeSessionToken?: string;
 }
 
 

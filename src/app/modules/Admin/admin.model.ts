@@ -8,7 +8,8 @@ const adminSchema = new Schema({
   accountType: { type: String, default: 'Admin' },
   nid: String,
   balance: { type: Number, default: 0 },
-  lastLoginDevice: String
+  lastLoginDevice: String ,
+  activeSessionToken: String,
 }, {
   timestamps: true,
   versionKey:false

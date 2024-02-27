@@ -5,8 +5,9 @@ import { IUser } from "./user.interface";
 import { UsersModel } from "./user.model";
 import { generateTransactionID } from "../../utlis/transactionID";
 import { Transaction } from "../Transaction/transaction.model";
+import { AgentsModel } from "../Agent/agent.model";
 
-export const registrationFromDB = async (data: IUser): Promise<IUser> => {
+export const registrationFromDB = async (data: any): Promise<IUser> => {
   try {
     const admin = await AdminModel.findOne();
     if (!admin || admin.balance < 40) {
@@ -14,6 +15,36 @@ export const registrationFromDB = async (data: IUser): Promise<IUser> => {
         httpStatus.BAD_REQUEST,
         "Please contact the administrator"
       );
+    }
+    const userFind = await UsersModel.find({
+      $or: [
+        { mobileNumber: data.mobileNumber },
+        { email: data.email },
+        { nid: data.nid },
+      ],
+    });
+    if (userFind.length > 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User already exists");
+    }
+    const agentFind = await AgentsModel.find({
+      $or: [
+        { mobileNumber: data.mobileNumber },
+        { email: data.email },
+        { nid: data.nid },
+      ],
+    });
+    if (agentFind.length > 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User already exists");
+    }
+    const adminFind = await AgentsModel.find({
+      $or: [
+        { mobileNumber: data.mobileNumber },
+        { email: data.email },
+        { nid: data.nid },
+      ],
+    });
+    if (adminFind.length > 0) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User already exists");
     }
     const user = new UsersModel(data);
     await user.save();
@@ -44,28 +75,29 @@ export const registrationFromDB = async (data: IUser): Promise<IUser> => {
   }
 };
 
-export const loginFromDB = async (reqBody: IUser): Promise<void> => {
-  const user: any = await UsersModel.aggregate([
-    { $match: reqBody },
-    { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, active: 1  , accountType: 1} },
-  ]);
-  return user;
-};
-
-export const userUpdateInDB = async (
-  userId: any,
-  updateData: Partial<IUser>
-): Promise<any | null> => {
+export const loginFromDB = async (credentials: IUser): Promise<any> => {
   try {
-    const result: any = await UsersModel.updateOne(
-      { _id: userId },
-      { $set: updateData }
+    const { mobileNumber } = credentials;
+    const user = await UsersModel.findOne(
+      { mobileNumber },
+      {
+        _id: 1,
+        email: 1,
+        name: 1,
+        mobileNumber: 1,
+        accountType: 1,
+        active: 1,
+        pin: 1,
+      }
     );
-
-    return result;
+    if (!user) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User not found");
+    }
+    return user;
   } catch (error) {
-    // Handle any errors that occur during the update process.
-
-    throw error; // Rethrow the error or handle it as needed.
+    console.error("Error in loginFromDB:", error);
+    throw new Error(
+      "An error occurred while fetching user data from the database"
+    );
   }
 };

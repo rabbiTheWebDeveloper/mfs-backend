@@ -8,6 +8,7 @@ export interface IUser extends Document {
   nid: string;
   balance: number;
   lastLoginDevice?: string;
+  activeSessionToken?: string;
   transactions: Types.ObjectId[];
   active: boolean;
 }

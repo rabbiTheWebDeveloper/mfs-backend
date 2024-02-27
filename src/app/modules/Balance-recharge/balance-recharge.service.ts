@@ -3,7 +3,6 @@ import { BalanceRechargeModel } from "./balance-recharge.model";
 import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";
 import { generateTransactionID } from "../../utlis/transactionID";
-import { UsersModel } from "../User/user.model";
 import { AgentsModel } from "../Agent/agent.model";
 import { AdminModel } from "../Admin/admin.model";
 import { Transaction } from "../Transaction/transaction.model";

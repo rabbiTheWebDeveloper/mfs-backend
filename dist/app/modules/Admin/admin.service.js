@@ -22,6 +22,36 @@ const transaction_model_1 = require("../Transaction/transaction.model");
 const transactionID_1 = require("../../utlis/transactionID");
 const registrationFromDB = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const userFind = yield user_model_1.UsersModel.find({
+            $or: [
+                { mobileNumber: data.mobileNumber },
+                { email: data.email },
+                { nid: data.nid },
+            ],
+        });
+        if (userFind.length > 0) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "User already exists");
+        }
+        const agentFind = yield agent_model_1.AgentsModel.find({
+            $or: [
+                { mobileNumber: data.mobileNumber },
+                { email: data.email },
+                { nid: data.nid },
+            ],
+        });
+        if (agentFind.length > 0) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "User already exists");
+        }
+        const adminFind = yield agent_model_1.AgentsModel.find({
+            $or: [
+                { mobileNumber: data.mobileNumber },
+                { email: data.email },
+                { nid: data.nid },
+            ],
+        });
+        if (adminFind.length > 0) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "User already exists");
+        }
         const user = new admin_model_1.AdminModel(data);
         yield user.save();
         if (!user) {
@@ -38,12 +68,23 @@ const registrationFromDB = (data) => __awaiter(void 0, void 0, void 0, function*
         }
     }
 });
-const loginFromDB = (reqBody) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield admin_model_1.AdminModel.aggregate([
-        { $match: reqBody },
-        { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, accountType: 1 } },
-    ]);
-    return user;
+const loginFromDB = (credentials) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { mobileNumber } = credentials;
+        const user = yield admin_model_1.AdminModel.findOne({ mobileNumber }, {
+            _id: 1,
+            email: 1,
+            name: 1,
+            mobileNumber: 1,
+            accountType: 1,
+            pin: 1,
+        });
+        return user;
+    }
+    catch (error) {
+        console.error("Error in loginFromDB:", error);
+        throw new Error("An error occurred while fetching user data from the database");
+    }
 });
 const userUpdateOnDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_model_1.UsersModel.findOneAndUpdate({ _id: id }, payload, {
@@ -221,5 +262,5 @@ exports.AdminService = {
     userListInDB,
     agentListInDB,
     cashinAdminToAgentInsertIntoDB,
-    cashinAdminToUserInsertIntoDB
+    cashinAdminToUserInsertIntoDB,
 };

@@ -27,10 +27,42 @@ const registrationFromDB = (data) => __awaiter(void 0, void 0, void 0, function*
         if (!admin || admin.balance < 100000) {
             throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Please contact the administrator");
         }
+        const userFind = yield user_model_1.UsersModel.find({
+            $or: [
+                { mobileNumber: data.mobileNumber },
+                { email: data.email },
+                { nid: data.nid },
+            ],
+        });
+        if (userFind.length > 0) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "User already exists");
+        }
+        const agentFind = yield agent_model_1.AgentsModel.find({
+            $or: [
+                { mobileNumber: data.mobileNumber },
+                { email: data.email },
+                { nid: data.nid },
+            ],
+        });
+        if (agentFind.length > 0) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "User already exists");
+        }
+        const adminFind = yield agent_model_1.AgentsModel.find({
+            $or: [
+                { mobileNumber: data.mobileNumber },
+                { email: data.email },
+                { nid: data.nid },
+            ],
+        });
+        if (adminFind.length > 0) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "User already exists");
+        }
         const user = new agent_model_1.AgentsModel(data);
         yield user.save();
         admin.balance -= user.balance;
-        yield Promise.all([admin.save(), new transaction_model_1.Transaction({
+        yield Promise.all([
+            admin.save(),
+            new transaction_model_1.Transaction({
                 sender: admin._id,
                 receiver: user._id,
                 amount: user.balance,
@@ -38,7 +70,8 @@ const registrationFromDB = (data) => __awaiter(void 0, void 0, void 0, function*
                 transactionFee: 0,
                 transactionID: (0, transactionID_1.generateTransactionID)(),
                 timestamp: new Date(),
-            }).save()]);
+            }).save(),
+        ]);
         return user;
     }
     catch (error) {
@@ -136,11 +169,23 @@ const cashinAgentInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void
     ]);
     return transaction;
 });
-const loginFromDB = (reqBody) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield agent_model_1.AgentsModel.aggregate([
-        { $match: reqBody },
-        { $project: { _id: 1, email: 1, name: 1, mobileNumber: 1, approvalStatus: 1, accountType: 1 } },
-    ]);
-    return user;
+const loginFromDB = (credentials) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { mobileNumber } = credentials;
+        const user = yield agent_model_1.AgentsModel.findOne({ mobileNumber }, {
+            _id: 1,
+            email: 1,
+            name: 1,
+            mobileNumber: 1,
+            approvalStatus: 1,
+            accountType: 1,
+            pin: 1,
+        });
+        return user;
+    }
+    catch (error) {
+        console.error("Error in loginFromDB:", error);
+        throw new Error("An error occurred while fetching user data from the database");
+    }
 });
 exports.loginFromDB = loginFromDB;

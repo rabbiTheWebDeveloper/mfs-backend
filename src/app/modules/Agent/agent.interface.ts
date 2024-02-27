@@ -10,4 +10,5 @@ export interface IAgent extends Document {
   balance: number;
   transactions:Types.ObjectId[];
   approvalStatus: string;
+  activeSessionToken?: string;
 }
