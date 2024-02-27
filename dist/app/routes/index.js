@@ -8,6 +8,7 @@ const user_router_1 = require("../modules/User/user.router");
 const transaction_route_1 = require("../modules/Transaction/transaction.route");
 const agent_router_1 = require("../modules/Agent/agent.router");
 const admin_router_1 = require("../modules/Admin/admin.router");
+const balance_recharge_route_1 = require("../modules/Balance-recharge/balance-recharge.route");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -25,6 +26,10 @@ const moduleRoutes = [
     {
         path: "/transaction",
         route: transaction_route_1.transactionRoutes,
+    },
+    {
+        path: "/balance-recharge",
+        route: balance_recharge_route_1.BalanceRechargeRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

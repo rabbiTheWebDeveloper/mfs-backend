@@ -3,6 +3,7 @@ import { userRoutes } from "../modules/User/user.router";
 import {  transactionRoutes } from "../modules/Transaction/transaction.route";
 import { agentsRoutes } from "../modules/Agent/agent.router";
 import { adminRoutes } from "../modules/Admin/admin.router";
+import { BalanceRechargeRoutes } from "../modules/Balance-recharge/balance-recharge.route";
 const router = express.Router();
 
 const moduleRoutes = [
@@ -21,6 +22,10 @@ const moduleRoutes = [
   {
     path: "/transaction",
     route: transactionRoutes,
+  },
+  {
+    path: "/balance-recharge",
+    route: BalanceRechargeRoutes,
   },
 ];
 

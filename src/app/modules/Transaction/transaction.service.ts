@@ -137,7 +137,7 @@ const cashOutIntoDB = async (
 };
 
 const cashinAgentInsertIntoDB = async (
-  senderId: string,
+  senderId: any,
   receiverId: string,
   amount: number
 ): Promise<ITransaction> => {
