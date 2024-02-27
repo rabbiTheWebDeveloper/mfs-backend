@@ -28,8 +28,12 @@ const insertIntoDB = (data) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const balanceIntoDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const sender = yield agent_model_1.AgentsModel.findOne({ _id: user });
+    const admin = yield admin_model_1.AdminModel.findOne({ _id: user });
     if (sender) {
         return { balance: sender.balance };
+    }
+    else if (admin) {
+        return { balance: admin.balance };
     }
     else {
         const receiver = yield user_model_1.UsersModel.findOne({ _id: user });

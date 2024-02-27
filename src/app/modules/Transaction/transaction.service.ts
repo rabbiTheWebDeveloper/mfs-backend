@@ -21,9 +21,13 @@ const insertIntoDB = async (data: any): Promise<ITransaction> => {
 };
 const balanceIntoDB = async (user: any): Promise<object | null> => {
   const sender = await AgentsModel.findOne({ _id: user });
+  const admin = await AdminModel.findOne({ _id: user });
   if (sender) {
     return { balance: sender.balance };
-  } else {
+  }else if( admin){
+    return { balance: admin.balance };
+  }
+   else {
     const receiver = await UsersModel.findOne({ _id: user });
     return receiver ? { balance: receiver.balance } : null;
   }
