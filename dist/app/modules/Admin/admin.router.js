@@ -12,6 +12,6 @@ router.post("/signin", admin_controller_1.adminController.login);
 router.post("/user-update/:id", AuthVerifyMiddleware_1.auth, admin_controller_1.adminController.userUpdateOnDB);
 router.post("/agent-update/:id", AuthVerifyMiddleware_1.auth, admin_controller_1.adminController.agentApprovedUpdateOnDB);
 router.post("/cash-out-admin", AuthVerifyMiddleware_1.auth, admin_controller_1.adminController.cashOutUserIntoDB);
-router.post("/user-list", AuthVerifyMiddleware_1.auth, admin_controller_1.adminController.userListInDB);
-router.post("/agent-list", AuthVerifyMiddleware_1.auth, admin_controller_1.adminController.agentListInDB);
+router.get("/user-list", AuthVerifyMiddleware_1.auth, admin_controller_1.adminController.userListInDB);
+router.get("/agent-list", AuthVerifyMiddleware_1.auth, admin_controller_1.adminController.agentListInDB);
 exports.adminRoutes = router;
