@@ -65,8 +65,8 @@ const updateIntoDB = async (
         admin.save(),
         agent.save(),
         new Transaction({
-          sender: admin._id,
-          receiver: agent._id,
+          sender:agent._id,
+          receiver:admin._id ,
           amount: result.amount,
           transactionType: "recharge",
           transactionFee: 0,
