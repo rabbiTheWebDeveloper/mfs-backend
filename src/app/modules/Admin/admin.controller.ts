@@ -101,6 +101,41 @@ const agentListInDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
+const cashinAdminToAgentInsertIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const user = req.headers.id;
+  payload.userId = user;
+  console.log(payload);
+  const result = await AdminService.cashinAdminToAgentInsertIntoDB(
+    payload.userId,
+    payload.receiverId,
+    payload.amount
+  );
+  sendReponse<ITransaction>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Cash Out Admin To Agent successfully!",
+    data: result,
+  });
+});
+const cashinAdminToUserInsertIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const user = req.headers.id;
+  payload.userId = user;
+  console.log(payload);
+  const result = await AdminService.cashinAdminToUserInsertIntoDB(
+    payload.userId,
+    payload.receiverId,
+    payload.amount
+  );
+  sendReponse<ITransaction>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Cash Out Admin To User successfully!",
+    data: result,
+  });
+});
 export const adminController = {
   registration,
   login,
@@ -108,5 +143,7 @@ export const adminController = {
   agentApprovedUpdateOnDB,
   cashOutUserIntoDB,
   userListInDB,
-  agentListInDB
+  agentListInDB,
+  cashinAdminToAgentInsertIntoDB,
+  cashinAdminToUserInsertIntoDB
 };

@@ -95,6 +95,32 @@ const agentListInDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
+const cashinAdminToAgentInsertIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const payload = req.body;
+    const user = req.headers.id;
+    payload.userId = user;
+    console.log(payload);
+    const result = yield admin_service_1.AdminService.cashinAdminToAgentInsertIntoDB(payload.userId, payload.receiverId, payload.amount);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Cash Out Admin To Agent successfully!",
+        data: result,
+    });
+}));
+const cashinAdminToUserInsertIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const payload = req.body;
+    const user = req.headers.id;
+    payload.userId = user;
+    console.log(payload);
+    const result = yield admin_service_1.AdminService.cashinAdminToUserInsertIntoDB(payload.userId, payload.receiverId, payload.amount);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Cash Out Admin To User successfully!",
+        data: result,
+    });
+}));
 exports.adminController = {
     registration,
     login,
@@ -102,5 +128,7 @@ exports.adminController = {
     agentApprovedUpdateOnDB,
     cashOutUserIntoDB,
     userListInDB,
-    agentListInDB
+    agentListInDB,
+    cashinAdminToAgentInsertIntoDB,
+    cashinAdminToUserInsertIntoDB
 };

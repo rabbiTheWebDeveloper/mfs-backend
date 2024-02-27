@@ -158,6 +158,60 @@ const agentListInDB = (adminID) => __awaiter(void 0, void 0, void 0, function* (
     const agent = yield agent_model_1.AgentsModel.find();
     return agent;
 });
+const cashinAdminToAgentInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
+    const sender = yield admin_model_1.AdminModel.findOne({ _id: senderId });
+    const receiver = yield agent_model_1.AgentsModel.findOne({ mobileNumber: receiverId });
+    if (!sender || !receiver) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Sender or receiver not found");
+    }
+    if (sender.balance < amount) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Insufficient balance");
+    }
+    sender.balance -= amount;
+    receiver.balance += amount;
+    const transaction = new transaction_model_1.Transaction({
+        sender: sender._id,
+        receiver: receiver._id,
+        amount,
+        transactionType: "cash In Admin TO Agent",
+        transactionFee: 0,
+        transactionID: (0, transactionID_1.generateTransactionID)(),
+        timestamp: new Date(),
+    });
+    yield Promise.all([sender.save(), receiver.save(), transaction.save()]);
+    yield Promise.all([
+        sender.updateOne({ $push: { transactions: transaction._id } }),
+        receiver.updateOne({ $push: { transactions: transaction._id } }),
+    ]);
+    return transaction;
+});
+const cashinAdminToUserInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void 0, void 0, void 0, function* () {
+    const sender = yield admin_model_1.AdminModel.findOne({ _id: senderId });
+    const receiver = yield user_model_1.UsersModel.findOne({ mobileNumber: receiverId });
+    if (!sender || !receiver) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Sender or receiver not found");
+    }
+    if (sender.balance < amount) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Insufficient balance");
+    }
+    sender.balance -= amount;
+    receiver.balance += amount;
+    const transaction = new transaction_model_1.Transaction({
+        sender: sender._id,
+        receiver: receiver._id,
+        amount,
+        transactionType: "cash In Admin TO User",
+        transactionFee: 0,
+        transactionID: (0, transactionID_1.generateTransactionID)(),
+        timestamp: new Date(),
+    });
+    yield Promise.all([sender.save(), receiver.save(), transaction.save()]);
+    yield Promise.all([
+        sender.updateOne({ $push: { transactions: transaction._id } }),
+        receiver.updateOne({ $push: { transactions: transaction._id } }),
+    ]);
+    return transaction;
+});
 exports.AdminService = {
     registrationFromDB,
     loginFromDB,
@@ -165,5 +219,7 @@ exports.AdminService = {
     agentApprovedUpdateOnDB,
     cashOutUserIntoDB,
     userListInDB,
-    agentListInDB
+    agentListInDB,
+    cashinAdminToAgentInsertIntoDB,
+    cashinAdminToUserInsertIntoDB
 };

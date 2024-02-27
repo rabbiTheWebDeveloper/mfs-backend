@@ -184,6 +184,78 @@ const agentListInDB = async (adminID :any): Promise< IAgent[]> => {
   return agent;
  }
 
+ const cashinAdminToAgentInsertIntoDB = async (
+  senderId: string,
+  receiverId: string,
+  amount: number
+): Promise<ITransaction> => {
+  const sender = await AdminModel.findOne({ _id: senderId });
+  const receiver = await AgentsModel.findOne({ mobileNumber: receiverId });
+
+  if (!sender || !receiver) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Sender or receiver not found");
+  }
+  if (sender.balance < amount) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient balance");
+  }
+  sender.balance -= amount;
+  receiver.balance += amount;
+  const transaction = new Transaction({
+    sender: sender._id,
+    receiver: receiver._id,
+    amount,
+    transactionType: "cash In Admin TO Agent",
+    transactionFee: 0,
+    transactionID: generateTransactionID(),
+    timestamp: new Date(),
+  });
+
+  await Promise.all([sender.save(), receiver.save(), transaction.save()]);
+
+  await Promise.all([
+    sender.updateOne({ $push: { transactions: transaction._id } }),
+    receiver.updateOne({ $push: { transactions: transaction._id } }),
+  ]);
+
+  return transaction;
+};
+
+const cashinAdminToUserInsertIntoDB = async (
+  senderId: string,
+  receiverId: string,
+  amount: number
+): Promise<ITransaction> => {
+  const sender = await AdminModel.findOne({ _id: senderId });
+  const receiver = await UsersModel.findOne({ mobileNumber: receiverId });
+
+  if (!sender || !receiver) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Sender or receiver not found");
+  }
+  if (sender.balance < amount) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient balance");
+  }
+  sender.balance -= amount;
+  receiver.balance += amount;
+  const transaction = new Transaction({
+    sender: sender._id,
+    receiver: receiver._id,
+    amount,
+    transactionType: "cash In Admin TO User",
+    transactionFee: 0,
+    transactionID: generateTransactionID(),
+    timestamp: new Date(),
+  });
+
+  await Promise.all([sender.save(), receiver.save(), transaction.save()]);
+
+  await Promise.all([
+    sender.updateOne({ $push: { transactions: transaction._id } }),
+    receiver.updateOne({ $push: { transactions: transaction._id } }),
+  ]);
+
+  return transaction;
+};
+
 export const AdminService = {
   registrationFromDB,
   loginFromDB,
@@ -191,5 +263,7 @@ export const AdminService = {
   agentApprovedUpdateOnDB,
   cashOutUserIntoDB,
   userListInDB
-  ,agentListInDB
+  ,agentListInDB,
+  cashinAdminToAgentInsertIntoDB,
+  cashinAdminToUserInsertIntoDB
 };
