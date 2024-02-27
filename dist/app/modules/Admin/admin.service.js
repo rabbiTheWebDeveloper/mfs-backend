@@ -142,10 +142,28 @@ const cashinAgentInsertIntoDB = (senderId, receiverId, amount) => __awaiter(void
     ]);
     return transaction;
 });
+const userListInDB = (adminID) => __awaiter(void 0, void 0, void 0, function* () {
+    const admin = yield admin_model_1.AdminModel.findOne({ _id: adminID });
+    if (!admin) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Admin not found");
+    }
+    const user = yield user_model_1.UsersModel.find();
+    return user;
+});
+const agentListInDB = (adminID) => __awaiter(void 0, void 0, void 0, function* () {
+    const admin = yield admin_model_1.AdminModel.findOne({ _id: adminID });
+    if (!admin) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Admin not found");
+    }
+    const agent = yield agent_model_1.AgentsModel.find();
+    return agent;
+});
 exports.AdminService = {
     registrationFromDB,
     loginFromDB,
     userUpdateOnDB,
     agentApprovedUpdateOnDB,
     cashOutUserIntoDB,
+    userListInDB,
+    agentListInDB
 };

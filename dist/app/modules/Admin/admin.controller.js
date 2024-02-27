@@ -75,10 +75,32 @@ const cashOutUserIntoDB = (0, catchAsync_1.default)((req, res) => __awaiter(void
         data: result,
     });
 }));
+const userListInDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.headers.id;
+    const result = yield admin_service_1.AdminService.userListInDB(user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "User List  successfully!",
+        data: result,
+    });
+}));
+const agentListInDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.headers.id;
+    const result = yield admin_service_1.AdminService.agentListInDB(user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Agent List  successfully!",
+        data: result,
+    });
+}));
 exports.adminController = {
     registration,
     login,
     userUpdateOnDB,
     agentApprovedUpdateOnDB,
-    cashOutUserIntoDB
+    cashOutUserIntoDB,
+    userListInDB,
+    agentListInDB
 };

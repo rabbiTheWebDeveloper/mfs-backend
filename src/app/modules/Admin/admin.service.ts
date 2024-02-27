@@ -166,10 +166,30 @@ const cashinAgentInsertIntoDB = async (
 };
 
 
+const userListInDB = async (adminID :any): Promise<IUser[]> => {
+  const admin = await AdminModel.findOne({ _id: adminID });
+  if (!admin) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Admin not found");
+  }
+  const user = await UsersModel.find();
+  return user;
+};
+
+const agentListInDB = async (adminID :any): Promise< IAgent[]> => { 
+  const admin = await AdminModel.findOne({ _id: adminID });
+  if (!admin) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Admin not found");
+  }
+  const agent = await AgentsModel.find();
+  return agent;
+ }
+
 export const AdminService = {
   registrationFromDB,
   loginFromDB,
   userUpdateOnDB,
   agentApprovedUpdateOnDB,
   cashOutUserIntoDB,
+  userListInDB
+  ,agentListInDB
 };

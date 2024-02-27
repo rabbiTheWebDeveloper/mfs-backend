@@ -77,10 +77,36 @@ const cashOutUserIntoDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
+const userListInDB = catchAsync(async (req: Request, res: Response) => {
+ 
+  const user = req.headers.id;
+  const result = await AdminService.userListInDB( user );
+  sendReponse<IUser[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User List  successfully!",
+    data: result,
+  });
+});
+
+const agentListInDB = catchAsync(async (req: Request, res: Response) => {
+ 
+  const user = req.headers.id;
+  const result = await AdminService.agentListInDB( user );
+  sendReponse<IAgent[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Agent List  successfully!",
+    data: result,
+  });
+});
 export const adminController = {
   registration,
   login,
   userUpdateOnDB,
   agentApprovedUpdateOnDB,
-  cashOutUserIntoDB
+  cashOutUserIntoDB,
+  userListInDB,
+  agentListInDB
 };

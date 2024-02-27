@@ -15,5 +15,7 @@ router.post("/signin", adminController.login);
 router.post("/user-update/:id",auth, adminController.userUpdateOnDB);
 router.post("/agent-update/:id",auth, adminController.agentApprovedUpdateOnDB);
 router.post("/cash-out-admin",auth, adminController.cashOutUserIntoDB);
+router.post("/user-list",auth, adminController.userListInDB);
+router.post("/agent-list",auth, adminController.agentListInDB);
 
 export const adminRoutes = router;
